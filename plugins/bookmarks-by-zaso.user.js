@@ -532,8 +532,11 @@
       var guid = result.guid;
       if(event.type == 'dblclick')
         zoomToAndShowPortal(guid, result.position);
-      else if(window.portals[guid])
-        renderPortalDetails(guid);
+      else if(window.portals[guid] && !portalDetail.isFresh(guid)) {
+        portalDetail.request(guid, function(){
+          renderPortalDetails(guid);
+        });
+      }
       else
         window.selectPortalByLatLng(result.position);
     } else if(result.zoom) { // map

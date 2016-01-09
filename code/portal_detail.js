@@ -29,7 +29,7 @@ window.portalDetail.isFresh = function(guid) {
 }
 
 
-var handleResponse = function(guid, data, success) {
+var handleResponse = function(guid, data, success, callback) {
   delete requestQueue[guid];
 
   if (!data || data.error || !data.result) {
@@ -47,8 +47,8 @@ var handleResponse = function(guid, data, success) {
 
     //FIXME..? better way of handling sidebar refreshing...
 
-    if (guid == selectedPortal) {
-      renderPortalDetails(guid);
+    if (callback) {
+      callback();
     }
 
     window.runHooks ('portalDetailLoaded', {guid:guid, success:success, details:dict, ent:ent});
@@ -64,12 +64,12 @@ var handleResponse = function(guid, data, success) {
 
 }
 
-window.portalDetail.request = function(guid) {
+window.portalDetail.request = function(guid, callback) {
   if (!requestQueue[guid]) {
     requestQueue[guid] = true;
 
     window.postAjax('getPortalDetails', {guid:guid},
-      function(data,textStatus,jqXHR) { handleResponse(guid, data, true); },
+      function(data,textStatus,jqXHR) { handleResponse(guid, data, true, callback); },
       function() { handleResponse(guid, undefined, false); }
     );
   }

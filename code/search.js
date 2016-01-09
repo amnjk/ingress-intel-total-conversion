@@ -240,7 +240,13 @@ addHook('search', function(query) {
             zoomToAndShowPortal(guid, portal.getLatLng());
           } else if(window.portals[guid]) {
             if(!map.getBounds().contains(result.position)) map.setView(result.position);
-            renderPortalDetails(guid);
+            if (guid && !portalDetail.isFresh(guid)) {
+              portalDetail.request(guid, function() {
+                renderPortalDetails(guid);
+              });
+            } else {
+              renderPortalDetails(guid);
+            }
           } else {
             window.selectPortalByLatLng(portal.getLatLng());
           }

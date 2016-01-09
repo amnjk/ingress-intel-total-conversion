@@ -5,10 +5,6 @@
 window.renderPortalDetails = function(guid) {
   selectPortal(window.portals[guid] ? guid : null);
 
-  if (guid && !portalDetail.isFresh(guid)) {
-    portalDetail.request(guid);
-  }
-
   // TODO? handle the case where we request data for a particular portal GUID, but it *isn't* in
   // window.portals....
 

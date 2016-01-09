@@ -621,7 +621,12 @@ window.plugin.apList.selectPortal = function(guid) {
   // Add error catching to avoid following link of portal if error 
   // occurred in renderPortalDetails or hooked plugin
   try {
-    renderPortalDetails(guid);
+    if (guid && !portalDetail.isFresh(guid)) {
+      portalDetail.request(guid, function(){
+        renderPortalDetails(guid);
+      });
+    }
+    else renderPortalDetails(guid);
   } catch(e) {
     console.error(e.message);
     console.log(e.stack);

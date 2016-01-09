@@ -374,7 +374,14 @@ window.plugin.portalslist.getPortalLink = function(portal) {
   link.textContent = portal.options.data.title;
   link.href = perma;
   link.addEventListener("click", function(ev) {
-    renderPortalDetails(portal.options.guid);
+    if (portal.options.guid && !portalDetail.isFresh(portal.options.guid)) {
+      portalDetail.request(portal.options.guid, function(){
+        renderPortalDetails(portal.options.guid);
+      });
+    }
+    else {
+      renderPortalDetails(portal.options.guid);
+    }
     ev.preventDefault();
     return false;
   }, false);

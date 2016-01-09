@@ -262,8 +262,11 @@ window.zoomToAndShowPortal = function(guid, latlng) {
   map.setView(latlng, 17);
   // if the data is available, render it immediately. Otherwise defer
   // until it becomes available.
-  if(window.portals[guid])
-    renderPortalDetails(guid);
+  if(window.portals[guid] && !portalDetail.isFresh(guid)) {
+    portalDetail.request(guid, function() {
+      renderPortalDetails(guid);
+    });
+  }
   else
     urlPortal = guid;
 }

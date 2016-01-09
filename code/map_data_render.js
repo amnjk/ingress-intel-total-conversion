@@ -175,8 +175,10 @@ window.Render.prototype.endRenderPass = function() {
   this.isRendering = false;
 
   // re-select the selected portal, to re-render the side-bar. ensures that any data calculated from the map data is up to date
-  if (selectedPortal) {
-    renderPortalDetails (selectedPortal);
+  if (selectedPortal && !portalDetail.isFresh(selectedPortal)) {
+    portalDetail.request (selectedPortal, function() {
+      renderPortalDetails (selectedPortal);
+    });
   }
 }
 
@@ -328,8 +330,25 @@ window.Render.prototype.createPortalEntity = function(ent) {
 
   var marker = createMarker(latlng, dataOptions);
 
-  marker.on('click', function() { window.renderPortalDetails(ent[0]); });
-  marker.on('dblclick', function() { window.renderPortalDetails(ent[0]); window.map.setView(latlng, 17); });
+  marker.on('click', function() {
+    if (ent[0] && !portalDetail.isFresh(ent[0])) {
+      window.portalDetail.request(ent[0], function() {
+        renderPortalDetails(ent[0]);
+      });
+    } else {
+      window.renderPortalDetails(ent[0]);
+    }
+  });
+  marker.on('dblclick', function() {
+    if (ent[0] && !portalDetail.isFresh(ent[0])) {
+      portalDetail.request(ent[0], function() {
+        window.renderPortalDetails(ent[0]);
+      });
+    } else {
+      window.renderPortalDetails(ent[0]);
+    }
+    window.map.setView(latlng, 17);
+  });
 
 
   window.runHooks('portalAdded', {portal: marker, previousData: previousData});
@@ -354,7 +373,13 @@ window.Render.prototype.createPortalEntity = function(ent) {
   // (re-)select the portal, to refresh the sidebar on any changes
   if (ent[0] == selectedPortal) {
     console.log('portal guid '+ent[0]+' is the selected portal - re-rendering portal details');
-    renderPortalDetails (selectedPortal);
+    if (selectedPortal && !portalDetail.isFresh(selectedPortal)) {
+      portalDetail.request(selectedPortal, function(){
+        renderPortalDetails (selectedPortal);
+      });
+    } else {
+      renderPortalDetails (selectedPortal);
+    }
   }
 
   window.ornaments.addPortal(marker);
